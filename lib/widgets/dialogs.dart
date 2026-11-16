@@ -77,12 +77,14 @@ void showDeleteDialog(
   required String title,
   required String subtitle,
   required VoidCallback onConfirm,
+  String confirmLabel = 'Supprimer',
 }) {
   showDialog(
     context: context,
     builder: (_) => _DeleteDialog(
       title: title,
       subtitle: subtitle,
+      confirmLabel: confirmLabel,
       onConfirm: onConfirm,
     ),
   );
@@ -293,11 +295,12 @@ class _PersonDialogState extends State<_PersonDialog> {
 
 // ─── Dialogue : suppression ──────────────────────────────────────────────────
 class _DeleteDialog extends StatelessWidget {
-  final String title, subtitle;
+  final String title, subtitle, confirmLabel;
   final VoidCallback onConfirm;
   const _DeleteDialog({
     required this.title,
     required this.subtitle,
+    required this.confirmLabel,
     required this.onConfirm,
   });
 
@@ -342,9 +345,9 @@ class _DeleteDialog extends StatelessWidget {
                     color: kDangerSoft,
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: const Center(
-                      child: Text('Supprimer',
-                          style: TextStyle(
+                  child: Center(
+                      child: Text(confirmLabel,
+                          style: const TextStyle(
                               color: kDanger, fontWeight: FontWeight.w700))),
                 ),
               ),

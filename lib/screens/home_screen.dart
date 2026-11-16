@@ -6,6 +6,7 @@ import '../widgets/neu_widgets.dart';
 import '../widgets/dialogs.dart';
 import '../widgets/family_card.dart';
 import 'family_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -69,28 +70,37 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(24, 20, 24, 8),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Text('🍽️', style: TextStyle(fontSize: 36)),
-              SizedBox(width: 12),
-              Text(
-                'Familles',
-                style: TextStyle(
-                  color: kTextPrimary,
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
+              const Text('🍽️', style: TextStyle(fontSize: 36)),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Familles',
+                  style: TextStyle(
+                    color: kTextPrimary,
+                    fontSize: 32,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+              ),
+              NeuIconButton(
+                icon: Icons.settings_rounded,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 4),
-          Text('Gérez les préférences de chacun',
+          const SizedBox(height: 4),
+          const Text('Gérez les préférences de chacun',
               style: TextStyle(color: kTextSecond, fontSize: 14)),
         ],
       ),
