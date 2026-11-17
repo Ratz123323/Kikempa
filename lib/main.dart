@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'models/app_data.dart';
 import 'theme/app_theme.dart';
-import 'screens/home_screen.dart';
+import 'screens/main_shell.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
       title: 'Préférences alimentaires',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
-      home: const HomeScreen(),
+      home: const MainShell(),
     );
   }
 }

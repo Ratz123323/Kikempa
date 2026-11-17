@@ -341,3 +341,81 @@ class NeuTabBar extends StatelessWidget {
     );
   }
 }
+
+// ─── NeuBottomNav : barre de navigation du bas ────────────────────────────
+class NeuBottomNav extends StatelessWidget {
+  final List<IconData> icons;
+  final List<String> labels;
+  final int selected;
+  final ValueChanged<int> onChanged;
+  const NeuBottomNav({
+    super.key,
+    required this.icons,
+    required this.labels,
+    required this.selected,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+        child: Container(
+          decoration: neuBoxOut(radius: 24),
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            children: [
+              for (var i = 0; i < labels.length; i++)
+                Expanded(
+                  child: _NavItem(
+                    icon: icons[i],
+                    label: labels[i],
+                    active: i == selected,
+                    onTap: () => onChanged(i),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    required this.active,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final couleur = active ? kAccent : kTextSecond;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: active ? neuBoxIn(radius: 16) : const BoxDecoration(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 22, color: couleur),
+            const SizedBox(height: 2),
+            Text(label,
+                style: TextStyle(
+                    color: couleur, fontSize: 11, fontWeight: FontWeight.w700)),
+          ],
+        ),
+      ),
+    );
+  }
+}

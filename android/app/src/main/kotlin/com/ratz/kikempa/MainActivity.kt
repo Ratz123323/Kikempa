@@ -1,4 +1,4 @@
-package com.example.kikempa
+package com.ratz.kikempa
 
 import io.flutter.embedding.android.FlutterActivity
 
