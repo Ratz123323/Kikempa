@@ -32,7 +32,7 @@ class SummaryScreen extends StatelessWidget {
       ..sort((a, b) {
         final parNombre = b.value.length.compareTo(a.value.length);
         if (parNombre != 0) return parNombre;
-        return a.key.toLowerCase().compareTo(b.key.toLowerCase());
+        return foodKey(a.key).compareTo(foodKey(b.key));
       });
 
     return ListView(

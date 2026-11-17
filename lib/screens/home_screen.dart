@@ -60,7 +60,10 @@ class HomeScreen extends StatelessWidget {
       title: 'Nouvelle famille',
       hint: 'Nom de la famille',
       confirmLabel: 'Créer',
-      onConfirm: (name) => context.read<AppData>().addFamily(name),
+      onConfirm: (name) {
+        final ok = context.read<AppData>().addFamily(name);
+        if (!ok) showMessage(context, 'Ce nom existe déjà');
+      },
     );
   }
 }

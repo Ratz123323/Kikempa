@@ -77,8 +77,10 @@ class _FamilyScreenState extends State<FamilyScreen> {
       title: 'Renommer',
       hint: 'Nouveau nom',
       initialText: family.name,
-      onConfirm: (name) =>
-          context.read<AppData>().updateFamilyName(family.id, name),
+      onConfirm: (name) {
+        final ok = context.read<AppData>().updateFamilyName(family.id, name);
+        if (!ok) showMessage(context, 'Ce nom existe déjà');
+      },
     );
   }
 
@@ -100,8 +102,10 @@ class _FamilyScreenState extends State<FamilyScreen> {
       context,
       title: 'Nouveau membre',
       confirmLabel: 'Ajouter',
-      onConfirm: (name, emoji) =>
-          context.read<AppData>().addPerson(familyId, name, emoji),
+      onConfirm: (name, emoji) {
+        final ok = context.read<AppData>().addPerson(familyId, name, emoji);
+        if (!ok) showMessage(context, 'Ce prénom existe déjà');
+      },
     );
   }
 }

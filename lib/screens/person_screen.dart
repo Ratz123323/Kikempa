@@ -7,6 +7,10 @@ import '../utils/format.dart';
 import '../widgets/neu_widgets.dart';
 import '../widgets/dialogs.dart';
 
+// Réglages des suggestions
+const _minLettres = 2; // lettres à taper avant d'afficher des suggestions
+const _minPersonnes = 2; // personnes qui doivent détester l'aliment
+
 class PersonScreen extends StatefulWidget {
   final String familyId;
   final String personId;
@@ -25,9 +29,38 @@ class _PersonScreenState extends State<PersonScreen> {
   Person? _lastPerson;
 
   @override
+  void initState() {
+    super.initState();
+    _foodCtrl.addListener(() => setState(() {}));
+  }
+
+  @override
   void dispose() {
     _foodCtrl.dispose();
     super.dispose();
+  }
+
+  /// Aliments détestés par plusieurs personnes de l'app, pas encore dans
+  /// la liste de cette personne, et qui correspondent à ce qui est tapé.
+  List<String> _suggestions(AppData data, Person person) {
+    final saisie = foodKey(_foodCtrl.text);
+    if (saisie.length < _minLettres) return [];
+
+    final resultat = <String>[];
+    for (final entry in data.foodCounts.entries) {
+      if (entry.value < _minPersonnes) continue;
+      if (person.containsFood(entry.key)) continue;
+      if (!foodKey(entry.key).contains(saisie)) continue;
+      resultat.add(entry.key);
+    }
+    return resultat.take(8).toList();
+  }
+
+  void _addSuggestion(String food) {
+    context
+        .read<AppData>()
+        .addDislikedFood(widget.familyId, widget.personId, food);
+    _foodCtrl.clear();
   }
 
   void _addFood() {
@@ -54,6 +87,8 @@ class _PersonScreenState extends State<PersonScreen> {
     if (person == null) return const Scaffold();
     _lastPerson = person;
 
+    final suggestions = _suggestions(data, person);
+
     return Scaffold(
       body: SafeArea(
         child: ListView(
@@ -66,6 +101,19 @@ class _PersonScreenState extends State<PersonScreen> {
             ),
             const SectionTitle('Aliments à éviter'),
             _AddFoodRow(controller: _foodCtrl, onAdd: _addFood),
+            if (suggestions.isNotEmpty) ...[
+              const SectionTitle('Suggestions'),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: suggestions
+                    .map((food) => _SuggestionChip(
+                          label: food,
+                          onTap: () => _addSuggestion(food),
+                        ))
+                    .toList(),
+              ),
+            ],
             const SizedBox(height: 20),
             person.dislikedFoods.isEmpty
                 ? const EmptyState(
@@ -99,9 +147,12 @@ class _PersonScreenState extends State<PersonScreen> {
       title: 'Modifier',
       initialName: person.name,
       initialEmoji: person.emoji,
-      onConfirm: (name, emoji) => context
-          .read<AppData>()
-          .updatePerson(widget.familyId, person.id, name, emoji),
+      onConfirm: (name, emoji) {
+        final ok = context
+            .read<AppData>()
+            .updatePerson(widget.familyId, person.id, name, emoji);
+        if (!ok) showMessage(context, 'Ce prénom existe déjà');
+      },
     );
   }
 
@@ -194,6 +245,35 @@ class _AddFoodRow extends StatelessWidget {
           child: const Icon(Icons.add_rounded, color: Colors.white, size: 22),
         ),
       ],
+    );
+  }
+}
+
+class _SuggestionChip extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+  const _SuggestionChip({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: neuBoxOutSmall(radius: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(label,
+                style: const TextStyle(
+                    color: kTextPrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600)),
+            const SizedBox(width: 6),
+            const Icon(Icons.add_rounded, size: 14, color: kAccent),
+          ],
+        ),
+      ),
     );
   }
 }

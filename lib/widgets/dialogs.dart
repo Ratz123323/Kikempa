@@ -90,6 +90,13 @@ void showDeleteDialog(
   );
 }
 
+/// Petit message en bas de l'écran.
+void showMessage(BuildContext context, String text) {
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(text)));
+}
+
 // ─── Coque commune : défile et suit le clavier ───────────────────────────────
 class _DialogShell extends StatelessWidget {
   final Widget child;

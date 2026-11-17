@@ -61,20 +61,50 @@ class AppData extends ChangeNotifier {
     return null;
   }
 
-  // ─── Familles ────────────────────────────────────────────────────────────
-  void addFamily(String name) {
-    final clean = name.trim();
-    if (clean.isEmpty) return;
-    _families.add(Family(id: _uuid.v4(), name: clean));
-    _commit();
+  /// Aliment -> nombre de personnes (toutes familles) qui ne l'aiment pas.
+  Map<String, int> get foodCounts {
+    final noms = <String, String>{}; // clé -> libellé affiché
+    final nombres = <String, int>{}; // clé -> nombre de personnes
+
+    for (final family in _families) {
+      for (final person in family.members) {
+        for (final food in person.dislikedFoods) {
+          noms.putIfAbsent(foodKey(food), () => food);
+        }
+        for (final cle in person.dislikedFoods.map(foodKey).toSet()) {
+          nombres[cle] = (nombres[cle] ?? 0) + 1;
+        }
+      }
+    }
+
+    return {
+      for (final entry in nombres.entries) noms[entry.key]!: entry.value,
+    };
   }
 
-  void updateFamilyName(String familyId, String newName) {
+  // ─── Familles ────────────────────────────────────────────────────────────
+  /// Retourne false si le nom est vide ou déjà utilisé par une autre famille.
+  bool addFamily(String name) {
+    final clean = name.trim();
+    if (clean.isEmpty || _familyNameExists(clean)) return false;
+    _families.add(Family(id: _uuid.v4(), name: clean));
+    _commit();
+    return true;
+  }
+
+  bool _familyNameExists(String name, {String? exceptId}) {
+    final key = foodKey(name);
+    return _families.any((f) => f.id != exceptId && foodKey(f.name) == key);
+  }
+
+  bool updateFamilyName(String familyId, String newName) {
     final family = familyById(familyId);
     final clean = newName.trim();
-    if (family == null || clean.isEmpty) return;
+    if (family == null || clean.isEmpty) return false;
+    if (_familyNameExists(clean, exceptId: familyId)) return false;
     family.name = clean;
     _commit();
+    return true;
   }
 
   void deleteFamily(String familyId) {
@@ -83,22 +113,34 @@ class AppData extends ChangeNotifier {
   }
 
   // ─── Personnes ───────────────────────────────────────────────────────────
-  void addPerson(String familyId, String name, String emoji) {
+  /// Retourne false si le prénom est vide ou déjà utilisé dans cette famille.
+  bool addPerson(String familyId, String name, String emoji) {
     final family = familyById(familyId);
     final clean = name.trim();
-    if (family == null || clean.isEmpty) return;
+    if (family == null || clean.isEmpty) return false;
+    if (_personNameExists(family, clean)) return false;
     family.members.add(Person(id: _uuid.v4(), name: clean, emoji: emoji));
     _commit();
+    return true;
   }
 
-  void updatePerson(
+  bool _personNameExists(Family family, String name, {String? exceptId}) {
+    final key = foodKey(name);
+    return family.members
+        .any((p) => p.id != exceptId && foodKey(p.name) == key);
+  }
+
+  bool updatePerson(
       String familyId, String personId, String name, String emoji) {
+    final family = familyById(familyId);
     final person = personById(familyId, personId);
     final clean = name.trim();
-    if (person == null || clean.isEmpty) return;
+    if (family == null || person == null || clean.isEmpty) return false;
+    if (_personNameExists(family, clean, exceptId: personId)) return false;
     person.name = clean;
     person.emoji = emoji;
     _commit();
+    return true;
   }
 
   void deletePerson(String familyId, String personId) {
