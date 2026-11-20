@@ -12,34 +12,55 @@ class AppData extends ChangeNotifier {
 
   final StorageService _storage;
   List<Family> _families = [];
+  TriPersonnes _tri = TriPersonnes.famille;
+  List<String> _ordrePersonnes = []; // id des personnes, dans l'ordre manuel
   Future<void> _saveQueue = Future.value();
 
   /// Lecture seule : on modifie uniquement via les méthodes ci-dessous.
   List<Family> get families => UnmodifiableListView(_families);
 
+  TriPersonnes get triPersonnes => _tri;
+
+  List<String> get ordrePersonnes => UnmodifiableListView(_ordrePersonnes);
+
   // ─── Chargement / sauvegarde ─────────────────────────────────────────────
   Future<void> load() async {
     _families = await _storage.readFamilies();
+    _tri = await _storage.readTri();
+    _ordrePersonnes = await _storage.readOrdre();
     notifyListeners();
+  }
+
+  /// Enregistre l'ordre manuel : id des personnes dans l'ordre voulu.
+  void changerOrdrePersonnes(List<String> ids) {
+    _ordrePersonnes = ids;
+    _commit();
+  }
+
+  void changerTri(TriPersonnes tri) {
+    _tri = tri;
+    _commit();
   }
 
   /// Notifie l'interface puis sauvegarde (les sauvegardes sont mises en file).
   void _commit() {
     notifyListeners();
     _saveQueue = _saveQueue
-        .then((_) => _storage.writeFamilies(_families))
+        .then((_) => _storage.writeFamilies(_families, _tri, _ordrePersonnes))
         .catchError((Object e) {
       debugPrint('Sauvegarde échouée : $e');
     });
   }
 
   // ─── Sauvegarde / restauration manuelle (prêt pour une future fonction) ──
-  String exportJson() => _storage.encode(_families);
+  String exportJson() => _storage.encode(_families, _tri, _ordrePersonnes);
 
   bool importJson(String raw) {
     final imported = _storage.decode(raw);
     if (imported == null) return false;
     _families = imported;
+    _tri = _storage.decodeTri(raw);
+    _ordrePersonnes = _storage.decodeOrdre(raw);
     _commit();
     return true;
   }
@@ -112,6 +133,14 @@ class AppData extends ChangeNotifier {
     _commit();
   }
 
+  /// Déplace une famille (positions fournies par ReorderableListView).
+  void reorderFamilies(int ancienneVue, int nouvelleVue) {
+    if (nouvelleVue > ancienneVue) nouvelleVue -= 1;
+    final famille = _families.removeAt(ancienneVue);
+    _families.insert(nouvelleVue, famille);
+    _commit();
+  }
+
   // ─── Personnes ───────────────────────────────────────────────────────────
   /// Retourne false si le prénom est vide ou déjà utilisé dans cette famille.
   bool addPerson(String familyId, String name, String emoji) {
@@ -147,6 +176,16 @@ class AppData extends ChangeNotifier {
     final family = familyById(familyId);
     if (family == null) return;
     family.members.removeWhere((p) => p.id == personId);
+    _commit();
+  }
+
+  /// Déplace une personne dans sa famille.
+  void reorderMembers(String familyId, int ancienneVue, int nouvelleVue) {
+    final family = familyById(familyId);
+    if (family == null) return;
+    if (nouvelleVue > ancienneVue) nouvelleVue -= 1;
+    final personne = family.members.removeAt(ancienneVue);
+    family.members.insert(nouvelleVue, personne);
     _commit();
   }
 

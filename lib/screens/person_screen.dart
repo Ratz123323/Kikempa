@@ -90,19 +90,18 @@ class _PersonScreenState extends State<PersonScreen> {
     final suggestions = _suggestions(data, person);
 
     return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
+      body: NeuPage(
+        header: _PersonHeader(
+          person: person,
+          onEdit: () => _showEditDialog(person),
+          onDelete: () => _showDeleteDialog(person),
+        ),
+        builder: (padding) => ListView(
+          padding: padding,
           children: [
-            _PersonHeader(
-              person: person,
-              onEdit: () => _showEditDialog(person),
-              onDelete: () => _showDeleteDialog(person),
-            ),
-            const SectionTitle('Aliments à éviter'),
             _AddFoodRow(controller: _foodCtrl, onAdd: _addFood),
             if (suggestions.isNotEmpty) ...[
-              const SectionTitle('Suggestions'),
+              const SizedBox(height: 10),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -114,16 +113,12 @@ class _PersonScreenState extends State<PersonScreen> {
                     .toList(),
               ),
             ],
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             person.dislikedFoods.isEmpty
-                ? const EmptyState(
-                    emoji: '😋',
-                    title: 'Aucun aliment à éviter',
-                    subtitle: 'Ajoutez un aliment ci-dessus',
-                  )
+                ? const EmptyState(emoji: '😋', title: 'Aucun aliment à éviter')
                 : Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
+                    spacing: 8,
+                    runSpacing: 8,
                     children: person.dislikedFoods
                         .map((food) => NeuChip(
                               key: ValueKey(food),
@@ -180,43 +175,39 @@ class _PersonHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 4),
-      padding: const EdgeInsets.all(20),
-      decoration: neuBoxOut(radius: 24),
-      child: Row(
-        children: [
-          NeuIconButton(
-            icon: Icons.arrow_back_ios_new_rounded,
-            color: kTextPrimary,
-            onTap: () => Navigator.pop(context),
+    return Row(
+      children: [
+        NeuIconButton(
+          icon: Icons.arrow_back_ios_new_rounded,
+          color: kTextPrimary,
+          onTap: () => Navigator.pop(context),
+        ),
+        const SizedBox(width: 12),
+        EmojiAvatar(emoji: person.emoji),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(person.name,
+                  style: const TextStyle(
+                      color: kTextPrimary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800)),
+              Text(personStats(person),
+                  style: const TextStyle(color: kTextSecond, fontSize: 12)),
+            ],
           ),
-          const SizedBox(width: 14),
-          EmojiAvatar(emoji: person.emoji, size: 56),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(person.name,
-                    style: const TextStyle(
-                        color: kTextPrimary,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800)),
-                Text(personStats(person),
-                    style: const TextStyle(color: kTextSecond, fontSize: 13)),
-              ],
-            ),
-          ),
-          NeuIconButton(icon: Icons.edit_rounded, onTap: onEdit),
-          const SizedBox(width: 8),
-          NeuIconButton(
-            icon: Icons.delete_outline_rounded,
-            color: kDanger,
-            onTap: onDelete,
-          ),
-        ],
-      ),
+        ),
+        NeuIconButton(icon: Icons.edit_rounded, onTap: onEdit),
+        const SizedBox(width: 8),
+        NeuIconButton(
+          icon: Icons.delete_outline_rounded,
+          color: kDanger,
+          onTap: onDelete,
+        ),
+      ],
     );
   }
 }
@@ -241,8 +232,8 @@ class _AddFoodRow extends StatelessWidget {
         NeuButton(
           onTap: onAdd,
           color: kAccent,
-          padding: const EdgeInsets.all(14),
-          child: const Icon(Icons.add_rounded, color: Colors.white, size: 22),
+          padding: const EdgeInsets.all(12),
+          child: const Icon(Icons.add_rounded, color: Colors.white, size: 20),
         ),
       ],
     );

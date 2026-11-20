@@ -37,47 +37,32 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
+      body: NeuPage(
+        header: Row(
           children: [
-            Row(
-              children: [
-                NeuIconButton(
-                  icon: Icons.arrow_back_ios_new_rounded,
-                  color: kTextPrimary,
-                  onTap: () => Navigator.pop(context),
-                ),
-                const SizedBox(width: 14),
-                const Text(
-                  'Réglages',
-                  style: TextStyle(
-                    color: kTextPrimary,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
+            NeuIconButton(
+              icon: Icons.arrow_back_ios_new_rounded,
+              color: kTextPrimary,
+              onTap: () => Navigator.pop(context),
             ),
+            const SizedBox(width: 12),
+            const PageTitle('Réglages'),
+          ],
+        ),
+        builder: (padding) => ListView(
+          padding: padding,
+          children: [
             const SectionTitle('Sauvegarde'),
             NeuCard(
-              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
-                    'Exportez vos données dans un fichier pour les envoyer '
-                    'à un proche ou les garder en sécurité. Importez-les pour '
-                    'les retrouver sur un autre téléphone.',
-                    style: TextStyle(color: kTextSecond, fontSize: 13),
-                  ),
-                  const SizedBox(height: 20),
                   NeuButton(
                     onTap: () => _exporter(context),
                     color: kAccent,
                     child: const Center(child: Text('Exporter mes données')),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 12),
                   NeuButton(
                     onTap: () => _importer(context),
                     child: const Center(child: Text('Importer un fichier')),

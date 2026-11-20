@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/app_data.dart';
-import '../theme/app_theme.dart';
 import '../widgets/neu_widgets.dart';
 import '../widgets/dialogs.dart';
 import '../widgets/family_card.dart';
@@ -16,40 +15,39 @@ class HomeScreen extends StatelessWidget {
     final families = context.watch<AppData>().families;
 
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const _Header(),
-            Expanded(
-              child: families.isEmpty
-                  ? const EmptyState(
-                      emoji: '🏠',
-                      title: 'Aucune famille pour l\'instant',
-                      subtitle: 'Appuyez sur + pour en ajouter une',
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
-                      itemCount: families.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 16),
-                      itemBuilder: (ctx, i) => FamilyCard(
-                        family: families[i],
-                        onTap: () => Navigator.push(
-                          ctx,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                FamilyScreen(familyId: families[i].id),
-                          ),
+      body: NeuPage(
+        header: const _Header(),
+        fab: NeuFab(
+          icon: Icons.add_rounded,
+          onTap: () => _showAddDialog(context),
+        ),
+        builder: (padding) => families.isEmpty
+            ? const EmptyState(emoji: '🏠', title: 'Aucune famille')
+            : ReorderableListView.builder(
+                padding: padding,
+                itemCount: families.length,
+                buildDefaultDragHandles: false,
+                proxyDecorator: (child, _, __) =>
+                    Material(type: MaterialType.transparency, child: child),
+                onReorder: context.read<AppData>().reorderFamilies,
+                itemBuilder: (ctx, i) => ReorderableDelayedDragStartListener(
+                  key: ValueKey(families[i].id),
+                  index: i,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: FamilyCard(
+                      family: families[i],
+                      onTap: () => Navigator.push(
+                        ctx,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              FamilyScreen(familyId: families[i].id),
                         ),
                       ),
                     ),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: NeuFab(
-        icon: Icons.add_rounded,
-        onTap: () => _showAddDialog(context),
+                  ),
+                ),
+              ),
       ),
     );
   }
@@ -73,40 +71,17 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Text('🍽️', style: TextStyle(fontSize: 36)),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'Familles',
-                  style: TextStyle(
-                    color: kTextPrimary,
-                    fontSize: 32,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-              ),
-              NeuIconButton(
-                icon: Icons.settings_rounded,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                ),
-              ),
-            ],
+    return Row(
+      children: [
+        const Expanded(child: PageTitle('Kikempa')),
+        NeuIconButton(
+          icon: Icons.settings_rounded,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const SettingsScreen()),
           ),
-          const SizedBox(height: 4),
-          const Text('Gérez les préférences de chacun',
-              style: TextStyle(color: kTextSecond, fontSize: 14)),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

@@ -5,11 +5,11 @@ String plural(int n, String word) => n > 1 ? '$n ${word}s' : '$n $word';
 
 String personStats(Person p) {
   final n = p.dislikedFoods.length;
-  return n == 0 ? 'Aucune restriction' : '${plural(n, 'aliment')} à éviter';
+  return n == 0 ? 'Aucune restriction' : '${plural(n, 'aliment')} détesté';
 }
 
 String familyStats(Family f) {
   final n = f.dislikedFoodsByFood.length;
   return '${plural(f.members.length, 'membre')}'
-      ' · ${plural(n, 'aliment')} ${n > 1 ? 'évités' : 'évité'}';
+      ' · ${plural(n, 'aliment')} ${n > 1 ? 'détestés' : 'détesté'}';
 }

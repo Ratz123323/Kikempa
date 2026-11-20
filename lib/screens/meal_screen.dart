@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/app_data.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
-import '../utils/format.dart';
+import '../widgets/food_card.dart';
 import '../widgets/neu_widgets.dart';
 
 class MealScreen extends StatefulWidget {
@@ -74,47 +74,18 @@ class _MealScreenState extends State<MealScreen> {
       });
 
     return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4),
-              child: Row(
+      body: NeuPage(
+        header: const PageTitle('Repas'),
+        builder: (padding) => families.isEmpty
+            ? const EmptyState(emoji: '🏠', title: 'Aucune famille')
+            : ListView(
+                padding: padding,
                 children: [
-                  Text('🍽️', style: TextStyle(fontSize: 36)),
-                  SizedBox(width: 12),
-                  Text('Repas',
-                      style: TextStyle(
-                          color: kTextPrimary,
-                          fontSize: 32,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.5)),
+                  ...families.map((family) => _bloc(family)),
+                  const SectionTitle('Aliments à éviter'),
+                  _resultat(nbPresents, cles, noms, personnes),
                 ],
               ),
-            ),
-            const SizedBox(height: 4),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4),
-              child: Text('Qui sera présent ?',
-                  style: TextStyle(color: kTextSecond, fontSize: 14)),
-            ),
-            if (families.isEmpty)
-              const Padding(
-                padding: EdgeInsets.only(top: 60),
-                child: EmptyState(
-                  emoji: '🏠',
-                  title: 'Aucune famille',
-                  subtitle: 'Créez une famille depuis l\'accueil',
-                ),
-              )
-            else ...[
-              ...families.map((family) => _bloc(family)),
-              SectionTitle('Aliments à éviter'),
-              _resultat(nbPresents, cles, noms, personnes),
-            ],
-          ],
-        ),
       ),
     );
   }
@@ -167,29 +138,22 @@ class _MealScreenState extends State<MealScreen> {
     if (nbPresents == 0) {
       return const Padding(
         padding: EdgeInsets.only(top: 20),
-        child: EmptyState(
-          emoji: '👆',
-          title: 'Choisissez les personnes présentes',
-          subtitle: 'Les aliments à éviter apparaîtront ici',
-        ),
+        child: EmptyState(emoji: '👆', title: 'Qui est présent ?'),
       );
     }
     if (cles.isEmpty) {
       return const Padding(
         padding: EdgeInsets.only(top: 20),
         child: EmptyState(
-          emoji: '🎉',
-          title: 'Tout le monde mange de tout !',
-          subtitle: 'Aucune restriction pour ce repas',
-        ),
+            emoji: '🎉', title: 'Tout le monde mange de tout !'),
       );
     }
 
     return Column(
       children: cles
           .map((cle) => Padding(
-                padding: const EdgeInsets.only(bottom: 14),
-                child: _AlimentCard(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: FoodCard(
                   food: noms[cle]!,
                   persons: personnes[cle]!,
                   total: nbPresents,
@@ -212,7 +176,7 @@ class _PersonneChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration:
             present ? neuBoxAccent(radius: 20) : neuBoxOutSmall(radius: 20),
         child: Row(
@@ -227,71 +191,6 @@ class _PersonneChip extends StatelessWidget {
                     fontWeight: FontWeight.w700)),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _AlimentCard extends StatelessWidget {
-  final String food;
-  final List<String> persons;
-  final int total;
-  const _AlimentCard(
-      {required this.food, required this.persons, required this.total});
-
-  @override
-  Widget build(BuildContext context) {
-    final ratio = persons.length / total;
-    final isHigh = ratio >= 0.5;
-
-    return NeuCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(food,
-                    style: const TextStyle(
-                        color: kTextPrimary,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700)),
-              ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isHigh ? kDangerSoft : kAccentSoft,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text('${persons.length}/$total',
-                    style: TextStyle(
-                        color: isHigh ? kDanger : kAccent,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          NeuProgressBar(ratio: ratio, color: isHigh ? kDanger : kAccent),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: persons
-                .map((name) => Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      decoration: neuBoxOutSmall(radius: 20),
-                      child: Text(name,
-                          style: const TextStyle(
-                              color: kTextPrimary,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600)),
-                    ))
-                .toList(),
-          ),
-        ],
       ),
     );
   }

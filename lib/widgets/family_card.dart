@@ -9,9 +9,9 @@ class _FamilyAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        width: 48,
-        height: 48,
-        decoration: neuBoxAccent(radius: 14),
+        width: 40,
+        height: 40,
+        decoration: neuBoxAccent(radius: 12),
         child: const Center(
             child: Text('👨‍👩‍👧‍👦', style: TextStyle(fontSize: 24))),
       );
@@ -50,8 +50,8 @@ class FamilyCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: NeuCard(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-        radius: 20,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        radius: 16,
         child: Row(
           children: [
             const _FamilyAvatar(),
@@ -82,29 +82,25 @@ class FamilyHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NeuCard(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-      radius: 20,
-      child: Row(
-        children: [
-          NeuIconButton(
-            icon: Icons.arrow_back_ios_new_rounded,
-            color: kTextPrimary,
-            onTap: onBack,
-          ),
-          const SizedBox(width: 12),
-          const _FamilyAvatar(),
-          const SizedBox(width: 14),
-          Expanded(child: _FamilyInfo(family: family)),
-          NeuIconButton(icon: Icons.edit_rounded, onTap: onRename),
-          const SizedBox(width: 8),
-          NeuIconButton(
-            icon: Icons.delete_outline_rounded,
-            color: kDanger,
-            onTap: onDelete,
-          ),
-        ],
-      ),
+    return Row(
+      children: [
+        NeuIconButton(
+          icon: Icons.arrow_back_ios_new_rounded,
+          color: kTextPrimary,
+          onTap: onBack,
+        ),
+        const SizedBox(width: 12),
+        const _FamilyAvatar(),
+        const SizedBox(width: 12),
+        Expanded(child: _FamilyInfo(family: family)),
+        NeuIconButton(icon: Icons.edit_rounded, onTap: onRename),
+        const SizedBox(width: 8),
+        NeuIconButton(
+          icon: Icons.delete_outline_rounded,
+          color: kDanger,
+          onTap: onDelete,
+        ),
+      ],
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 // ─── Couleurs ─────────────────────────────────────────────────────────────
 const Color kBackground = Color(0xFFE8EAF0);
+const Color kBackgroundClear = Color(0x00E8EAF0); // fond transparent (dégradés)
 const Color kShadowDark = Color(0xFFC5C8D4);
 const Color kShadowLight = Color(0xFFFFFFFF);
 const Color kAccent = Color(0xFF6C8EBF);
@@ -19,16 +20,16 @@ const Color kAccentFocus = Color(0x2E6C8EBF); // 18 %
 
 // ─── Ombres ───────────────────────────────────────────────────────────────
 const List<BoxShadow> neuShadowOut = [
-  BoxShadow(color: kShadowDark, offset: Offset(6, 6), blurRadius: 12),
-  BoxShadow(color: kShadowLight, offset: Offset(-6, -6), blurRadius: 12),
-];
-const List<BoxShadow> neuShadowIn = [
   BoxShadow(color: kShadowDark, offset: Offset(4, 4), blurRadius: 8),
   BoxShadow(color: kShadowLight, offset: Offset(-4, -4), blurRadius: 8),
 ];
-const List<BoxShadow> neuShadowOutSmall = [
+const List<BoxShadow> neuShadowIn = [
   BoxShadow(color: kShadowDark, offset: Offset(3, 3), blurRadius: 6),
   BoxShadow(color: kShadowLight, offset: Offset(-3, -3), blurRadius: 6),
+];
+const List<BoxShadow> neuShadowOutSmall = [
+  BoxShadow(color: kShadowDark, offset: Offset(2, 2), blurRadius: 4),
+  BoxShadow(color: kShadowLight, offset: Offset(-2, -2), blurRadius: 4),
 ];
 const List<BoxShadow> neuShadowAccent = [
   BoxShadow(color: kAccentGlow, offset: Offset(4, 4), blurRadius: 10),

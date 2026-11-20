@@ -104,3 +104,7 @@ class Family {
             .toList(),
       );
 }
+
+// ─── Tri de la page Personnes ────────────────────────────────────────────────
+// Même ordre que les choix du menu de tri (people_screen.dart)
+enum TriPersonnes { famille, alphabetique, aliments, manuel }

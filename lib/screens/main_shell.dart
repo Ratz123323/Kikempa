@@ -26,6 +26,7 @@ class _MainShellState extends State<MainShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       body: IndexedStack(index: _onglet, children: _pages),
       bottomNavigationBar: NeuBottomNav(
         icons: const [

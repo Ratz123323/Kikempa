@@ -33,41 +33,35 @@ class _FamilyScreenState extends State<FamilyScreen> {
     _lastFamily = family;
 
     return Scaffold(
-      body: SafeArea(
-        child: Column(
+      body: NeuPage(
+        headerHeight: 124,
+        header: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-              child: FamilyHeader(
-                family: family,
-                onBack: () => Navigator.pop(context),
-                onRename: () => _showRenameDialog(family),
-                onDelete: () => _showDeleteDialog(family),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-              child: NeuTabBar(
-                labels: const ['👤 Membres', '📋 Résumé'],
-                selected: _tab,
-                onChanged: (v) => setState(() => _tab = v),
-              ),
+            FamilyHeader(
+              family: family,
+              onBack: () => Navigator.pop(context),
+              onRename: () => _showRenameDialog(family),
+              onDelete: () => _showDeleteDialog(family),
             ),
             const SizedBox(height: 8),
-            Expanded(
-              child: _tab == 0
-                  ? _MembersTab(family: family)
-                  : SummaryScreen(family: family),
+            NeuTabBar(
+              labels: const ['👤 Membres', '📋 Résumé'],
+              selected: _tab,
+              onChanged: (v) => setState(() => _tab = v),
             ),
           ],
         ),
+        fab: _tab == 0
+            ? NeuFab(
+                icon: Icons.person_add_rounded,
+                onTap: () => _showAddPersonDialog(family.id),
+              )
+            : null,
+        builder: (padding) => _tab == 0
+            ? _MembersTab(family: family, padding: padding)
+            : SummaryScreen(family: family, padding: padding),
       ),
-      floatingActionButton: _tab == 0
-          ? NeuFab(
-              icon: Icons.person_add_rounded,
-              onTap: () => _showAddPersonDialog(family.id),
-            )
-          : null,
     );
   }
 
@@ -112,23 +106,30 @@ class _FamilyScreenState extends State<FamilyScreen> {
 
 class _MembersTab extends StatelessWidget {
   final Family family;
-  const _MembersTab({required this.family});
+  final EdgeInsets padding;
+  const _MembersTab({required this.family, required this.padding});
 
   @override
   Widget build(BuildContext context) {
     if (family.members.isEmpty) {
-      return const EmptyState(
-        emoji: '👤',
-        title: 'Aucun membre',
-        subtitle: 'Appuyez sur + pour ajouter une personne',
-      );
+      return const EmptyState(emoji: '👤', title: 'Aucun membre');
     }
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+    return ReorderableListView.builder(
+      padding: padding,
       itemCount: family.members.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 14),
-      itemBuilder: (context, i) =>
-          _PersonCard(family: family, person: family.members[i]),
+      buildDefaultDragHandles: false,
+      proxyDecorator: (child, _, __) =>
+          Material(type: MaterialType.transparency, child: child),
+      onReorder: (ancien, nouveau) =>
+          context.read<AppData>().reorderMembers(family.id, ancien, nouveau),
+      itemBuilder: (context, i) => ReorderableDelayedDragStartListener(
+        key: ValueKey(family.members[i].id),
+        index: i,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: _PersonCard(family: family, person: family.members[i]),
+        ),
+      ),
     );
   }
 }
@@ -149,7 +150,7 @@ class _PersonCard extends StatelessWidget {
         ),
       ),
       child: NeuCard(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Row(
           children: [
             EmojiAvatar(emoji: person.emoji),

@@ -8,11 +8,11 @@ class NeuCard extends StatelessWidget {
   final EdgeInsets? padding;
   final double radius;
   const NeuCard(
-      {super.key, required this.child, this.padding, this.radius = 20});
+      {super.key, required this.child, this.padding, this.radius = 16});
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: padding ?? const EdgeInsets.all(16),
+        padding: padding ?? const EdgeInsets.all(12),
         decoration: neuBoxOut(radius: radius),
         child: child,
       );
@@ -54,7 +54,7 @@ class _NeuButtonState extends State<NeuButton> {
       onTapCancel: () => setState(() => _pressed = false),
       child: Container(
         padding: widget.padding ??
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: _pressed
             ? neuBoxIn(radius: widget.radius)
             : (isAccent
@@ -89,8 +89,8 @@ class NeuIconButton extends StatelessWidget {
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
         child: Container(
-          width: 36,
-          height: 36,
+          width: 32,
+          height: 32,
           decoration: neuBoxOut(radius: 10),
           child: Icon(icon, size: 16, color: color),
         ),
@@ -107,10 +107,10 @@ class NeuFab extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
         onTap: onTap,
         child: Container(
-          width: 60,
-          height: 60,
-          decoration: neuBoxAccent(radius: 18),
-          child: Icon(icon, color: Colors.white, size: 26),
+          width: 52,
+          height: 52,
+          decoration: neuBoxAccent(radius: 16),
+          child: Icon(icon, color: Colors.white, size: 24),
         ),
       );
 }
@@ -124,7 +124,7 @@ class NeuChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         decoration: neuBoxOutSmall(),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -189,7 +189,7 @@ class _NeuTextFieldState extends State<NeuTextField> {
         decoration: _focused
             ? neuBoxIn(radius: 14).copyWith(boxShadow: neuShadowFocus)
             : neuBoxIn(radius: 14),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 14),
         child: TextField(
           controller: widget.controller,
           autofocus: widget.autofocus,
@@ -202,6 +202,8 @@ class _NeuTextFieldState extends State<NeuTextField> {
             hintText: widget.hint,
             hintStyle: const TextStyle(color: kTextSecond, fontSize: 14),
             border: InputBorder.none,
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(vertical: 12),
           ),
         ),
       ),
@@ -232,7 +234,7 @@ class SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: 8),
         child: Text(text.toUpperCase(),
             style: const TextStyle(
                 color: kTextSecond,
@@ -246,29 +248,28 @@ class SectionTitle extends StatelessWidget {
 class EmptyState extends StatelessWidget {
   final String emoji;
   final String title;
-  final String subtitle;
+  final String? subtitle;
   const EmptyState(
-      {super.key,
-      required this.emoji,
-      required this.title,
-      required this.subtitle});
+      {super.key, required this.emoji, required this.title, this.subtitle});
 
   @override
   Widget build(BuildContext context) => Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 64)),
-            const SizedBox(height: 20),
+            Text(emoji, style: const TextStyle(fontSize: 48)),
+            const SizedBox(height: 12),
             Text(title,
                 style: const TextStyle(
                     color: kTextPrimary,
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.w600)),
-            const SizedBox(height: 6),
-            Text(subtitle,
-                style: const TextStyle(color: kTextSecond, fontSize: 13),
-                textAlign: TextAlign.center),
+            if (subtitle != null) ...[
+              const SizedBox(height: 4),
+              Text(subtitle!,
+                  style: const TextStyle(color: kTextSecond, fontSize: 13),
+                  textAlign: TextAlign.center),
+            ],
           ],
         ),
       );
@@ -308,8 +309,8 @@ class NeuTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: neuBoxIn(radius: 18),
-      padding: const EdgeInsets.all(5),
+      decoration: neuBoxIn(radius: 14),
+      padding: const EdgeInsets.all(4),
       child: Row(
         children: labels.asMap().entries.map((e) {
           final active = e.key == selected;
@@ -318,10 +319,10 @@ class NeuTabBar extends StatelessWidget {
               onTap: () => onChanged(e.key),
               behavior: HitTestBehavior.opaque,
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 11),
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
                   color: active ? kAccent : Colors.transparent,
-                  borderRadius: BorderRadius.circular(13),
+                  borderRadius: BorderRadius.circular(11),
                 ),
                 child: Center(
                   child: Text(
@@ -358,28 +359,46 @@ class NeuBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-        child: Container(
-          decoration: neuBoxOut(radius: 24),
-          padding: const EdgeInsets.all(8),
-          child: Row(
-            children: [
-              for (var i = 0; i < labels.length; i++)
-                Expanded(
-                  child: _NavItem(
-                    icon: icons[i],
-                    label: labels[i],
-                    active: i == selected,
-                    onTap: () => onChanged(i),
-                  ),
+    return Stack(
+      children: [
+        const Positioned.fill(
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [kBackgroundClear, kBackground],
+                  stops: [0, 0.2],
                 ),
-            ],
+              ),
+            ),
           ),
         ),
-      ),
+        SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Container(
+              decoration: neuBoxOut(radius: 20),
+              padding: const EdgeInsets.all(6),
+              child: Row(
+                children: [
+                  for (var i = 0; i < labels.length; i++)
+                    Expanded(
+                      child: _NavItem(
+                        icon: icons[i],
+                        label: labels[i],
+                        active: i == selected,
+                        onTap: () => onChanged(i),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -403,19 +422,97 @@ class _NavItem extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        decoration: active ? neuBoxIn(radius: 16) : const BoxDecoration(),
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        decoration: active ? neuBoxIn(radius: 14) : const BoxDecoration(),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 22, color: couleur),
-            const SizedBox(height: 2),
+            Icon(icon, size: 20, color: couleur),
+            const SizedBox(height: 1),
             Text(label,
                 style: TextStyle(
-                    color: couleur, fontSize: 11, fontWeight: FontWeight.w700)),
+                    color: couleur, fontSize: 10, fontWeight: FontWeight.w700)),
           ],
         ),
       ),
     );
   }
+}
+
+// ─── NeuPage : en-tête fixe, la liste défile dessous ──────────────────────
+const double kHeaderHeight = 56; // hauteur du contenu de l'en-tête
+const double kHeaderFade = 18; // dégradé sous l'en-tête
+
+class NeuPage extends StatelessWidget {
+  final Widget header;
+  final double headerHeight;
+  final Widget? fab;
+
+  /// Construit la liste : donner [padding] à son ListView.
+  final Widget Function(EdgeInsets padding) builder;
+
+  const NeuPage({
+    super.key,
+    required this.header,
+    required this.builder,
+    this.headerHeight = kHeaderHeight,
+    this.fab,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final inset = MediaQuery.paddingOf(context);
+    final zone = inset.top + headerHeight;
+    final total = zone + kHeaderFade;
+    final bas = inset.bottom + 16 + (fab != null ? 72 : 0);
+
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: builder(EdgeInsets.fromLTRB(16, zone + 4, 16, bas)),
+        ),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: IgnorePointer(
+            child: Container(
+              height: total,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: const [kBackground, kBackground, kBackgroundClear],
+                  stops: [0, zone / total, 1],
+                ),
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          top: inset.top,
+          left: 16,
+          right: 16,
+          height: headerHeight,
+          child: Align(alignment: Alignment.centerLeft, child: header),
+        ),
+        if (fab != null)
+          Positioned(right: 16, bottom: inset.bottom + 16, child: fab!),
+      ],
+    );
+  }
+}
+
+// ─── PageTitle : titre des en-têtes ───────────────────────────────────────
+class PageTitle extends StatelessWidget {
+  final String text;
+  const PageTitle(this.text, {super.key});
+
+  @override
+  Widget build(BuildContext context) => Text(text,
+      style: const TextStyle(
+          color: kTextPrimary,
+          fontSize: 24,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.5));
 }

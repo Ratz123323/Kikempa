@@ -268,8 +268,7 @@ class _PersonDialogState extends State<_PersonDialog> {
             textCapitalization: TextCapitalization.words,
             onSubmitted: _submit,
           ),
-          const SizedBox(height: 16),
-          const SectionTitle('Avatar'),
+          const SizedBox(height: 14),
           Wrap(
             spacing: 8,
             runSpacing: 8,
